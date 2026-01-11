@@ -91,3 +91,6 @@ target/
 
 #additional files
 project_building_steps.txt
+
+# TensorFlow cache files
+cache/
