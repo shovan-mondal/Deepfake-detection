@@ -88,3 +88,6 @@ target/
 
 # Mypy cache
 .mypy_cache/
+
+#additional files
+project_building_steps.txt
