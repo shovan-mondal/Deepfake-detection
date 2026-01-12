@@ -33,7 +33,8 @@ def load_test_data(data_dir):
     return test_ds
 
 def evaluate():
-    model_path = "models/best_srm_model_v2.keras"
+    # model_path = "models/best_srm_model_v2.keras"
+    model_path = "models/best_srm_model_v2_finetuned.keras"
     print(f"🔄 Loading model architecture and weights...")
     
     try:
