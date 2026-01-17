@@ -84,7 +84,7 @@ class Config:
     L2_REG = 1e-4
     
     # Data pipeline
-    SHUFFLE_BUFFER = 2048
+    SHUFFLE_BUFFER = 512
     PREFETCH_BUFFER = tf.data.AUTOTUNE
     PARALLEL_CALLS = tf.data.AUTOTUNE
     
