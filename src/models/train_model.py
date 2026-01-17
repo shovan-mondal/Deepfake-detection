@@ -155,6 +155,9 @@ class RandomCutout(layers.Layer):
             if tf.random.uniform([]) > self.probability:
                 return img
             
+            # Get dtype for mixed precision compatibility
+            dtype = img.dtype
+            
             h = tf.shape(img)[0]
             w = tf.shape(img)[1]
             
@@ -184,14 +187,15 @@ class RandomCutout(layers.Layer):
                 pad_left = left
                 pad_right = w - left - hole_w
                 
-                hole = tf.ones([hole_h, hole_w, 3]) * mean_color
+                # Use same dtype as input for mixed precision compatibility
+                hole = tf.ones([hole_h, hole_w, 3], dtype=dtype) * tf.cast(mean_color, dtype)
                 
                 # Create padded hole mask
                 hole_padded = tf.pad(hole, [[pad_top, pad_bottom], [pad_left, pad_right], [0, 0]])
                 mask_region = tf.pad(
-                    tf.zeros([hole_h, hole_w, 3]), 
+                    tf.zeros([hole_h, hole_w, 3], dtype=dtype), 
                     [[pad_top, pad_bottom], [pad_left, pad_right], [0, 0]],
-                    constant_values=1.0
+                    constant_values=tf.cast(1.0, dtype)
                 )
                 
                 img = img * mask_region + hole_padded * (1 - mask_region)

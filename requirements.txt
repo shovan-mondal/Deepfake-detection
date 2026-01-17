@@ -11,7 +11,7 @@ scikit-learn>=1.4.0
 # GPU & CUDA support (TensorFlow 2.20)
 nvidia-cudnn-cu12==9.5.0.50
 nvidia-cublas-cu12==12.5.3.2
-nvidia-cuda-nvcc-cu12==12.6 .77
+nvidia-cuda-nvcc-cu12==12.6.77
 nvidia-cuda-runtime-cu12==12.5.82
 nvidia-cufft-cu12==11.2.3.61
 nvidia-curand-cu12==10.3.7.77
