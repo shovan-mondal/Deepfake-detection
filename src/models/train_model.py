@@ -68,8 +68,8 @@ class Config:
     IMG_SIZE = (224, 224)
     IMG_SHAPE = (224, 224, 3)
     
-    # Training settings - optimized for T4 (16GB VRAM)
-    BATCH_SIZE = 64          # T4 can handle 64 with mixed precision
+    # Training settings - optimized for T4 (16GB VRAM) with RAM constraints
+    BATCH_SIZE = 32          # Reduced from 64 to save RAM
     EPOCHS_PHASE1 = 15       # Frozen backbone
     EPOCHS_PHASE2 = 10       # Fine-tuning
     
@@ -83,10 +83,10 @@ class Config:
     DROPOUT_RATE = 0.3
     L2_REG = 1e-4
     
-    # Data pipeline
-    SHUFFLE_BUFFER = 512
-    PREFETCH_BUFFER = tf.data.AUTOTUNE
-    PARALLEL_CALLS = tf.data.AUTOTUNE
+    # Data pipeline - memory optimized
+    SHUFFLE_BUFFER = 100     # Reduced from 512 to 100 (saves ~10GB RAM)
+    PREFETCH_BUFFER = 2      # Limited prefetch instead of AUTOTUNE
+    PARALLEL_CALLS = 4       # Limited parallel calls
     
     # Model architecture
     MOBILENET_ALPHA = 1.0    # Full MobileNetV2
@@ -317,10 +317,11 @@ def prepare_datasets(
     val_ds = val_ds.map(preprocess_eval, num_parallel_calls=Config.PARALLEL_CALLS)
     test_ds = test_ds.map(preprocess_eval, num_parallel_calls=Config.PARALLEL_CALLS)
     
-    # Optimize pipeline
+    # Optimize pipeline - memory efficient
     train_ds = train_ds.shuffle(Config.SHUFFLE_BUFFER).prefetch(Config.PREFETCH_BUFFER)
-    val_ds = val_ds.cache().prefetch(Config.PREFETCH_BUFFER)
-    test_ds = test_ds.cache().prefetch(Config.PREFETCH_BUFFER)
+    # Don't cache val/test to save RAM - will be slower but won't OOM
+    val_ds = val_ds.prefetch(Config.PREFETCH_BUFFER)
+    test_ds = test_ds.prefetch(Config.PREFETCH_BUFFER)
     
     return train_ds, val_ds, test_ds
 
