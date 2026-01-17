@@ -593,6 +593,14 @@ def get_callbacks(
             verbose=1
         ),
         
+        # Save checkpoint after every epoch
+        tf.keras.callbacks.ModelCheckpoint(
+            model_path.replace('.keras', '_epoch_{epoch:02d}.keras'),
+            save_best_only=False,
+            save_freq='epoch',
+            verbose=0
+        ),
+        
         # Early stopping
         tf.keras.callbacks.EarlyStopping(
             monitor='val_auc',
