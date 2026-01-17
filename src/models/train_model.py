@@ -33,9 +33,10 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 gc.collect()
 tf.keras.backend.clear_session()
 
-# Enable mixed precision for T4 GPU (2x speedup)
-tf.keras.mixed_precision.set_global_policy('mixed_float16')
-print("✅ Mixed Precision (FP16) Enabled")
+# Disable mixed precision due to numerical instability with custom layers
+# Mixed precision (FP16) causes NaN loss with SRM/Bayar forensic layers
+# tf.keras.mixed_precision.set_global_policy('mixed_float16')
+print("⚠️ Mixed Precision Disabled (FP32 for stability)")
 
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
@@ -73,13 +74,13 @@ class Config:
     EPOCHS_PHASE1 = 15       # Frozen backbone
     EPOCHS_PHASE2 = 10       # Fine-tuning
     
-    # Learning rate schedule
-    INITIAL_LR = 1e-3        # Higher initial LR with warmup
+    # Learning rate schedule - reduced for numerical stability
+    INITIAL_LR = 5e-4        # Reduced from 1e-3 to prevent NaN loss
     MIN_LR = 1e-6
     WARMUP_EPOCHS = 2
     
     # Regularization
-    LABEL_SMOOTHING = 0.1    # Helps with calibration
+    LABEL_SMOOTHING = 0.0    # Disabled due to NaN issues, re-enable after stable training
     DROPOUT_RATE = 0.3
     L2_REG = 1e-4
     
@@ -580,6 +581,9 @@ def get_callbacks(
     """Get training callbacks."""
     
     callbacks = [
+        # Terminate on NaN (must be first!)
+        tf.keras.callbacks.TerminateOnNaN(),
+        
         # Save best model
         tf.keras.callbacks.ModelCheckpoint(
             model_path,
@@ -647,11 +651,11 @@ def compile_model(
         min_lr=Config.MIN_LR
     )
     
-    # Optimizer with gradient clipping
+    # Optimizer with stronger gradient clipping for stability
     optimizer = tf.keras.optimizers.AdamW(
         learning_rate=lr_schedule,
         weight_decay=Config.L2_REG,
-        clipnorm=1.0  # Gradient clipping
+        clipnorm=2.0  # Increased gradient clipping to prevent NaN
     )
     
     # Loss
