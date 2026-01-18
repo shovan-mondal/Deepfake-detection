@@ -160,7 +160,7 @@ if __name__ == "__main__":
     if os.path.exists(sample_fake) and len(os.listdir(sample_fake)) > 0:
         first_img = os.listdir(sample_fake)[0]
         full_path = os.path.join(sample_fake, first_img)
-        visualize_srm_layer("models/best_srm_model_v2.keras", full_path)
+        visualize_srm_layer("models/best_v3_model_best.keras", full_path)
     
-    if os.path.exists("models/best_srm_model_v2.keras"):
-        visualize_prediction_grid("models/best_srm_model_v2.keras", "data/processed")
+    if os.path.exists("models/best_v3_model_best.keras"):
+        visualize_prediction_grid("models/best_v3_model_best.keras", "data/processed")

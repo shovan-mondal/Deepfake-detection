@@ -395,7 +395,7 @@ def plot_prediction_distribution(
 # ============================================
 
 def evaluate_model_v3(
-    model_path: str = "models/deepfake_detector_v3_best.keras",
+    model_path: str = "models/best_v3_model_best.keras",
     data_dir: str = "data/processed",
     optimize_threshold: bool = True,
     generate_plots: bool = True
