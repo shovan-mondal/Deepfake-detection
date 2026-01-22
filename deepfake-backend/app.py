@@ -69,7 +69,9 @@ async def predict(file: UploadFile = File(...)):
     # Get output
     output = interpreter.get_tensor(output_details[0]['index'])[0][0]
 
-    label = "FAKE" if output > 0.5 else "REAL"
+    # Note: Model outputs probability of being REAL (not FAKE)
+    # output > 0.5 means REAL, output < 0.5 means FAKE
+    label = "REAL" if output > 0.5 else "FAKE"
     confidence = float(output if output > 0.5 else (1 - output))
 
     return {

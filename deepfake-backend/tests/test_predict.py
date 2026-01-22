@@ -4,7 +4,7 @@ from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 MODEL_PATH = "models/best_v3_model_best.keras"
-IMAGE_PATH = "test_images/test.jpg"
+IMAGE_PATH = "test_images/test1.jpeg"
 
 print("🔄 Loading model...")
 model = tf.keras.models.load_model(MODEL_PATH)
