@@ -8,7 +8,7 @@ This project utilizes a **Dual-Stream Gated Architecture** that simultaneously a
 
 * **Dual-Stream Architecture:** Combines a **MobileNetV2** backbone (Visual Stream) with custom **SRM & Bayar Conv layers** (Forensic Stream).
 * **Adaptive Gating:** A learned gating mechanism dynamically weights the importance of visual vs. forensic features for each image.
-* **Mobile Optimized:** Ultra-lightweight design (~4.02M parameters) compatible with **TensorFlow Lite (TFLite)** for edge deployment (~16MB file size).
+* **Mobile Optimized:** Ultra-lightweight design (~4.02M parameters) compatible with **TensorFlow Lite (TFLite)** for edge deployment (4.36 MB file size).
 * **"Wild" Generalization:** Proven capability to detect unseen, real-world viral deepfakes (e.g., Rashmika Mandanna, Jake Gyllenhaal) with >96% confidence.
 * **Robust Training:** Trained on a diverse mix of **CIFAKE**, **FaceForensics++**, and **Celeb-DF** datasets to prevent overfitting to specific artifacts.
 
@@ -35,76 +35,80 @@ The model uses a **V3 Dual-Stream approach**:
 ## Project Organization
 
 ```text
-deepfake_image_detection
+deepfake-image-detection/
+├── deepfake-frontend/     <- React + Vite frontend application
+│   ├── src/               <- React components
+│   ├── package.json       <- Node.js dependencies
+│   └── README.md
+│
+├── deepfake-backend/      <- Python ML backend
+│   ├── app.py             <- FastAPI inference server
+│   ├── requirements.txt   <- Python dependencies
+│   ├── src/               <- Source code for ML pipeline
+│   │   ├── data/          <- Data loading & preprocessing
+│   │   ├── features/      <- Feature engineering & augmentation
+│   │   ├── models/        <- Model architecture & training
+│   │   │   ├── srm_model.py      <- SRM & Bayar forensic layers
+│   │   │   ├── train_model.py    <- V3 training pipeline
+│   │   │   ├── fine_tune.py      <- Fine-tuning pipeline
+│   │   │   └── evaluate_model.py <- Evaluation & metrics
+│   │   └── visualization/ <- Plotting utilities
+│   ├── models/            <- Trained models (.keras, .tflite)
+│   ├── tests/             <- Test scripts
+│   ├── notebooks/         <- Jupyter notebooks
+│   ├── reports/           <- Generated reports & figures
+│   └── docs/              <- Documentation
+│
+├── data/                  <- Training datasets (external, not in repo)
+│   ├── raw/               <- Original datasets
+│   └── processed/         <- Train/val/test splits
+│
 ├── LICENSE
-├── Makefile           <- Makefile with commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources (CIFAKE, FF++, Celeb-DF).
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
-│
-├── docs               <- A default Sphinx project; see sphinx-doc.org for details
-│
-├── models             <- Trained and serialized models (keras/tflite)
-│   ├── best_v3_model.keras  <- The production SOTA model
-│   └── model_v3.tflite      <- Mobile-optimized version
-│
-├── notebooks          <- Jupyter notebooks for exploration and prototyping.
-│
-├── references         <- Data dictionaries, manuals, and explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics (ROC curves, Confusion Matrices).
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment.
-│
-├── setup.py           <- Makes project pip installable (pip install -e .)
-├── src                <- Source code for use in this project.
-│   ├── __init__.py
-│   ├── data           <- Scripts to download or generate data
-│   ├── features       <- Scripts to turn raw data into features for modeling
-│   ├── models         <- Scripts to train models and make predictions
-│   │   ├── train_model.py  <- Main training script (Dual-Stream V3)
-│   │   ├── predict_model.py <- Inference script for batches
-│   │   └── srm_model.py     <- Custom layers (SRM/Bayar) definition
-│   └── visualization  <- Scripts to create exploratory and results oriented visualizations
-│
-└── tox.ini            <- tox file with settings for running tox
-
-```
+└── README.md
 
 ## Installation & Usage
 
-1. **Clone the repository:**
+### Backend Setup
+
 ```bash
-git clone https://github.com/shovan-mondal/Deepfake-detection.git
-cd deepfake-image-detection
-
-```
-
-
-2. **Install dependencies:**
-```bash
+cd deepfake-backend
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
-
 ```
 
+### Start API Server
 
-3. **Run Training (V3):**
 ```bash
-python src/models/train_model.py
-
+cd deepfake-backend
+uvicorn app:app --reload --port 8000
 ```
 
+### Frontend Setup (requires Node.js 20+)
 
-*This will automatically load data, build the Dual-Stream V3 model, and save the best checkpoint.*
-4. **Run "Wild" Inference (Test on single image):**
-```python
-# See 'notebooks' or run the inference script
-python src/models/predict_model.py --image path/to/image.jpg
+```bash
+cd deepfake-frontend
+npm install
+npm run dev
+```
 
+### Run Training (V3)
+
+```bash
+cd deepfake-backend
+python -c "from src.models.train_model import main; main()"
+```
+
+### Run Inference (Single Image)
+
+```bash
+cd deepfake-backend
+python tests/test_predict.py
+```
+
+Or via API:
+```bash
+curl -X POST "http://localhost:8000/predict" -F "file=@test_images/test1.jpeg"
 ```
 
 
@@ -113,7 +117,7 @@ python src/models/predict_model.py --image path/to/image.jpg
 
 The model is fully compatible with TensorFlow Lite.
 
-* **Float32 Size:** 44.68 MB
+* **Float32 Size:** 15.53 MB
 * **Quantized Size:** 4.36 MB
 
 ##  License
